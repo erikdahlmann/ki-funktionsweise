@@ -1,0 +1,571 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wie KI funktioniert</title>
+<meta name="description" content="Präsentation für Lehrkräfte in NRW: Sprachmodelle, stochastische Wortwahl und agentische KI im Harness.">
+<style>
+:root{
+  --papier:#faf8f4; --tinte:#1d2433; --grau:#6b7180; --linie:#e3ded4;
+  --blau:#2f5bd3; --bernstein:#d98e1f; --salbei:#5f8f6c; --rot:#c4473a; --weiss:#fff;
+  --schrift:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,Roboto,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#e9e5dd;color:var(--tinte);font-family:var(--schrift);overflow:hidden}
+#buehne{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+#leinwand{width:1600px;height:900px;position:relative;flex:none;transform-origin:center center;background:var(--papier);box-shadow:0 10px 40px rgba(0,0,0,.12)}
+.folie{position:absolute;inset:0;padding:70px 90px 80px;display:none;flex-direction:column}
+.folie.aktiv{display:flex}
+.folie.aktiv > *{animation:rein .5s cubic-bezier(.16,1,.3,1) both}
+.folie.aktiv > *:nth-child(2){animation-delay:.06s}.folie.aktiv > *:nth-child(3){animation-delay:.12s}
+@keyframes rein{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.folie.aktiv > *{animation:none}}
+
+h1{font-size:76px;line-height:1.05;margin:0 0 24px;font-weight:700;letter-spacing:-.5px}
+h2{font-size:50px;line-height:1.1;margin:0 0 34px;font-weight:700;letter-spacing:-.3px}
+.dach{font-size:22px;font-weight:600;color:var(--grau);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px}
+p,li{font-size:29px;line-height:1.42;margin:0}
+ul,ol{margin:0;padding-left:1.1em}
+li{margin-bottom:16px}
+li::marker{color:var(--blau)}
+.klein{font-size:22px;color:var(--grau);line-height:1.4}
+b,strong{font-weight:700}
+.blau{color:var(--blau)}.bernstein{color:var(--bernstein)}.salbei{color:var(--salbei)}.rot{color:var(--rot)}
+
+.zwei{display:grid;grid-template-columns:1fr 1fr;gap:56px;flex:1;min-height:0}
+.video-l{display:grid;grid-template-columns:1.55fr 1fr;gap:48px;flex:1;min-height:0;align-items:start}
+.medien{position:relative;border-radius:14px;overflow:hidden;border:1px solid var(--linie);background:var(--papier)}
+.medien video{display:block;width:100%;height:auto;cursor:pointer}
+.nochmal{position:absolute;right:12px;bottom:12px;border:0;border-radius:20px;padding:8px 14px;background:rgba(29,36,51,.75);color:#fff;font:600 16px var(--schrift);cursor:pointer}
+.bild{width:100%;border-radius:14px;display:block}
+.karte{background:var(--weiss);border:1px solid var(--linie);border-radius:14px;padding:24px 28px}
+.karte h3{font-size:27px;margin:0 0 10px}
+.karte p,.karte li{font-size:23px;line-height:1.4}
+.raster4{display:grid;grid-template-columns:repeat(4,1fr);gap:22px}
+.raster3{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+
+/* Titel und Abschnitt */
+.titel{padding:0;flex-direction:row}
+.titel .text{width:46%;padding:90px 30px 70px 90px;display:flex;flex-direction:column;justify-content:center}
+.titel .text p{font-size:30px;color:var(--grau)}
+.titel img{width:54%;height:100%;object-fit:cover;-webkit-mask-image:linear-gradient(to right,transparent 0,#000 18%);mask-image:linear-gradient(to right,transparent 0,#000 18%)}
+.abschnitt{padding:0;flex-direction:row;align-items:center}
+.abschnitt .text{width:44%;padding:0 30px 0 90px}
+.abschnitt .nr{font-size:150px;font-weight:700;color:var(--linie);line-height:1;margin-bottom:6px}
+.abschnitt h1{font-size:68px}
+.abschnitt p{font-size:30px;color:var(--grau)}
+.abschnitt img{width:56%;height:100%;object-fit:cover;-webkit-mask-image:linear-gradient(to right,transparent 0,#000 16%);mask-image:linear-gradient(to right,transparent 0,#000 16%)}
+
+.ablauf{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;margin-top:40px}
+.ablauf div{border-top:6px solid var(--blau);padding-top:20px}
+.ablauf div:nth-child(2){border-color:var(--bernstein)}.ablauf div:nth-child(3){border-color:var(--salbei)}.ablauf div:nth-child(4){border-color:var(--rot)}
+.ablauf b{display:block;font-size:56px;color:var(--linie);margin-bottom:6px}
+.ablauf span{font-size:30px;font-weight:600;line-height:1.25;display:block}
+
+.zitat{font-size:62px;font-weight:600;line-height:1.2;margin:10px 0 26px}
+.zitat .luecke{display:inline-block;min-width:110px;border-bottom:5px solid var(--tinte)}
+.aufdecken{cursor:pointer;color:transparent;transition:color .3s}
+.aufdecken.offen{color:var(--blau)}
+
+table{border-collapse:collapse;width:100%;font-size:26px}
+th,td{text-align:left;vertical-align:top;padding:18px 20px;border-bottom:1px solid var(--linie);line-height:1.38}
+th{font-size:22px;color:var(--grau);text-transform:uppercase;letter-spacing:1px}
+td:first-child{font-weight:600;width:22%}
+
+/* Spiel: Wort ziehen */
+.spiel{display:grid;grid-template-columns:1.25fr 1fr;gap:48px;flex:1}
+.zeile{display:grid;grid-template-columns:140px 1fr 80px 70px;align-items:center;gap:14px;margin-bottom:10px;font-size:25px}
+.zeile .balken{height:32px;border-radius:7px;background:var(--blau);transition:width .25s}
+.zeile .p{color:var(--grau);font-variant-numeric:tabular-nums;text-align:right}
+.zeile .n{font-variant-numeric:tabular-nums;font-weight:700;text-align:right}
+.zeile.treffer .balken{background:var(--bernstein)}
+.regler{width:100%;accent-color:var(--blau);height:30px}
+.knopf{font:600 24px var(--schrift);padding:14px 24px;border-radius:12px;border:2px solid var(--tinte);background:var(--tinte);color:#fff;cursor:pointer;margin-right:10px}
+.knopf.hell{background:transparent;color:var(--tinte)}
+.satz{font-size:40px;font-weight:600;min-height:110px;margin:6px 0 20px;line-height:1.25}
+.satz span{color:var(--bernstein)}
+
+/* Steuerung */
+#leiste{position:absolute;left:0;right:0;bottom:0;height:6px;background:var(--linie)}
+#fortschritt{height:100%;background:var(--blau);width:0;transition:width .3s}
+#nummer{position:absolute;right:28px;bottom:20px;font-size:18px;color:var(--grau);font-variant-numeric:tabular-nums}
+#tasten{position:fixed;right:14px;bottom:14px;display:flex;gap:8px;z-index:5;opacity:.35;transition:opacity .2s}
+#tasten:hover{opacity:1}
+#tasten button{width:46px;height:46px;border-radius:50%;border:1px solid var(--linie);background:#fff;font-size:20px;cursor:pointer;color:var(--tinte)}
+#notiz{position:fixed;left:0;right:0;bottom:0;max-height:34vh;overflow:auto;background:rgba(29,36,51,.95);color:#f2f0ea;font-size:19px;line-height:1.5;padding:18px 26px 22px;display:none;z-index:6}
+#notiz.offen{display:block}
+#notiz b{color:#f2c46d}
+#hilfe{position:fixed;left:14px;bottom:14px;font-size:13px;color:#8a8f9c;z-index:5}
+.erik-recht{font-size:18px;color:var(--grau)}.erik-recht a{color:inherit}
+</style>
+</head>
+<body>
+<div id="buehne"><div id="leinwand">
+
+<!-- 1 Titel -->
+<section class="folie titel" data-notiz="Begrüßung. Ziel heute: verstehen, was in einem Sprachmodell passiert, und warum Agenten mehr können als ein Chat. Kein Bedienkurs für ein bestimmtes Produkt.">
+  <div class="text">
+    <div class="dach">Fortbildung · Lehrkräfte aller Schulformen in NRW</div>
+    <h1>Wie KI funktioniert</h1>
+    <p>Sprachmodelle, Wahrscheinlichkeiten und Agenten</p>
+  </div>
+  <img src="bilder/01-titel.webp" alt="">
+</section>
+
+<!-- 2 Ablauf -->
+<section class="folie" data-notiz="Vier Teile. Teil 1 und 2 erklären das Sprachmodell selbst. Teil 3 zeigt, was passiert, wenn man das Modell mit Werkzeugen ausstattet. Teil 4 holt das in den Schulalltag.">
+  <div class="dach">Ablauf</div>
+  <h2>Vier Teile</h2>
+  <div class="ablauf">
+    <div><b>1</b><span>Was ein Sprachmodell ist</span><p class="klein">Training, Tokens, Bedeutung, Kontext</p></div>
+    <div><b>2</b><span>Wie es Wörter auswählt</span><p class="klein">Wahrscheinlichkeit, Zufall, Temperatur</p></div>
+    <div><b>3</b><span>Was ein Agent ist</span><p class="klein">Harness, Werkzeuge, Schleife</p></div>
+    <div><b>4</b><span>Was das für Schule heißt</span><p class="klein">Möglichkeiten, Grenzen, Regeln</p></div>
+  </div>
+</section>
+
+<!-- 3 Abschnitt 1 -->
+<section class="folie abschnitt" data-notiz="Teil 1: Was steckt in ChatGPT, Claude oder Gemini?">
+  <div class="text"><div class="nr">1</div><h1>Sprachmodelle</h1><p>Was beim Training entsteht und wie das Modell Text sieht</p></div>
+  <img src="bilder/02-training.webp" alt="">
+</section>
+
+<!-- 4 Was ist ein LLM -->
+<section class="folie" data-notiz="Einstieg mit der Lücke: Publikum ergänzt laut. Klick auf die Lücke deckt sie auf. Genau das macht ein Sprachmodell: Es ergänzt, was am wahrscheinlichsten folgt. Der Unterschied: Es tut das für jeden Text und kennt dafür Muster aus enorm vielen Texten.">
+  <div class="dach">Grundidee</div>
+  <h2>Was ist ein Sprachmodell?</h2>
+  <div class="zwei">
+    <div>
+      <p class="klein">Ergänzen Sie:</p>
+      <div class="zitat">Wer A sagt, muss auch <span class="luecke"><span class="aufdecken" title="Klicken zum Aufdecken">B</span></span> sagen.</div>
+      <p>Sie haben gerade das wahrscheinlichste Wort gewählt. Ein Sprachmodell macht dasselbe, Wort für Wort, für jeden Text.</p>
+    </div>
+    <div>
+      <ul>
+        <li>Ein <b>großes Sprachmodell</b> (Large Language Model, <b>LLM</b>) berechnet, wie ein Text am wahrscheinlichsten weitergeht.</li>
+        <li>Es schlägt nichts nach und speichert keine fertigen Sätze.</li>
+        <li>Es hat <b>Muster</b> aus sehr vielen Texten gelernt.</li>
+      </ul>
+      <div class="karte" style="margin-top:22px"><p><b>Bekannte Modelle:</b> GPT (ChatGPT), Claude, Gemini, Llama, Mistral. In Schulen oft über Plattformen wie fobizz.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 Training -->
+<section class="folie" data-notiz="Animation zeigt das Prinzip an einem Satz. In echt: Billionen Textstellen, Milliarden Parameter, Wochen auf Tausenden Grafikprozessoren. Wichtig für den Unterricht: Das Wissen hat einen Stichtag. Danach weiß das Modell nichts Neues, außer es bekommt eine Suche.">
+  <div class="dach">Training</div>
+  <h2>Vorhersagen, vergleichen, anpassen</h2>
+  <div class="video-l">
+    <div class="medien"><video src="videos/training.mp4" poster="videos/training.jpg" muted playsinline preload="metadata"></video><button class="nochmal">↻ nochmal</button></div>
+    <ul>
+      <li><b>Vortraining:</b> Billionen Wörter aus Internet, Büchern und Programmcode.</li>
+      <li>Die Aufgabe ist immer gleich: das nächste Stück Text vorhersagen.</li>
+      <li>Nach jedem Fehler werden Milliarden <b>Parameter</b> ein wenig verstellt.</li>
+      <li><b>Feinschliff:</b> Menschen bewerten Antworten. So wird aus dem Textergänzer ein Assistent.</li>
+      <li>Das Wissen endet am Trainingsende.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 6 Tokens -->
+<section class="folie" data-notiz="Das Modell rechnet nur mit Zahlen. Deshalb tun sich Modelle schwer, Buchstaben zu zählen: Sie sehen 'Erdbeere' als ein oder zwei Bausteine, nicht als acht Buchstaben. Deutsch wird in mehr Tokens zerlegt als Englisch, weil die Trainingstexte überwiegend englisch sind.">
+  <div class="dach">Wie das Modell Text sieht</div>
+  <h2>Tokens: Text in Bausteinen</h2>
+  <div class="video-l">
+    <div class="medien"><video src="videos/tokens.mp4" poster="videos/tokens.jpg" muted playsinline preload="metadata"></video><button class="nochmal">↻ nochmal</button></div>
+    <ul>
+      <li>Das Modell sieht keine Wörter, sondern <b>Tokens</b>: häufige Wortteile.</li>
+      <li>Jedes Token hat eine feste Nummer.</li>
+      <li>Deutsche Texte brauchen mehr Tokens als englische.</li>
+      <li>Folge: Buchstaben zählen oder Silben trennen fällt Modellen schwer.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 7 Embeddings -->
+<section class="folie" data-notiz="Embeddings. In Wirklichkeit hat der Raum Tausende Richtungen, hier sind es zwei. Niemand hat dem Modell gesagt, dass Hund und Katze zusammengehören. Das ergibt sich aus dem Training, weil beide Wörter in ähnlichen Sätzen vorkommen.">
+  <div class="dach">Bedeutung</div>
+  <h2>Bedeutung als Zahlen</h2>
+  <div class="zwei">
+    <svg viewBox="0 0 640 520" style="width:100%;height:auto;background:#fff;border:1px solid var(--linie);border-radius:14px" font-family="var(--schrift)" font-size="22">
+      <g stroke="#ece8df"><line x1="40" y1="480" x2="610" y2="480"/><line x1="40" y1="30" x2="40" y2="480"/></g>
+      <g fill="#2f5bd3"><circle cx="130" cy="110" r="9"/><circle cx="190" cy="80" r="9"/><circle cx="170" cy="160" r="9"/></g>
+      <g fill="#1d2433"><text x="145" y="117">Hund</text><text x="205" y="87">Katze</text><text x="185" y="167">Pferd</text></g>
+      <g fill="#d98e1f"><circle cx="450" cy="150" r="9"/><circle cx="510" cy="200" r="9"/><circle cx="420" cy="220" r="9"/></g>
+      <g fill="#1d2433"><text x="465" y="157">Lehrerin</text><text x="525" y="207">Tafel</text><text x="370" y="252">Klausur</text></g>
+      <g fill="#5f8f6c"><circle cx="230" cy="380" r="9"/><circle cx="300" cy="420" r="9"/><circle cx="180" cy="430" r="9"/></g>
+      <g fill="#1d2433"><text x="245" y="387">Apfel</text><text x="315" y="427">Brot</text><text x="100" y="437">Suppe</text></g>
+      <text x="610" y="505" text-anchor="end" fill="#6b7180" font-size="17">vereinfacht auf 2 von mehreren Tausend Richtungen</text>
+    </svg>
+    <ul>
+      <li>Jedes Token wird zu einer langen Liste von Zahlen, einem <b>Vektor</b>.</li>
+      <li>Jeder Vektor ist ein Punkt in einem Raum mit Tausenden Richtungen.</li>
+      <li>Wörter mit ähnlicher Bedeutung liegen nah beieinander.</li>
+      <li>Diese Lage hat das Modell im Training selbst gefunden.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 8 Kontext -->
+<section class="folie" data-notiz="Der Mechanismus heißt Aufmerksamkeit (Attention), vorgestellt 2017 von Forschenden bei Google ('Attention Is All You Need'). Das T in GPT steht für Transformer. Das Kontextfenster ist die Menge Text, die das Modell auf einmal berücksichtigt. Alles außerhalb existiert für das Modell nicht.">
+  <div class="dach">Kontext</div>
+  <h2>Der Zusammenhang entscheidet</h2>
+  <div class="zwei">
+    <div>
+      <svg viewBox="0 0 640 400" style="width:100%;height:auto" font-family="var(--schrift)" font-size="30" font-weight="600">
+        <g fill="none" stroke="#2f5bd3" stroke-linecap="round">
+          <path d="M120,95 Q250,10 370,95" stroke-width="9"/>
+          <path d="M120,95 Q180,50 230,95" stroke-width="2" opacity=".5"/>
+          <path d="M120,95 Q330,0 520,95" stroke-width="4" opacity=".7"/>
+        </g>
+        <text x="20" y="130">Die</text><text x="80" y="130" fill="#2f5bd3">Bank</text><text x="185" y="130">am</text><text x="240" y="130" fill="#2f5bd3">See</text><text x="320" y="130">war</text><text x="390" y="130">nass.</text>
+        <g fill="none" stroke="#d98e1f" stroke-linecap="round">
+          <path d="M120,305 Q330,200 545,305" stroke-width="9"/>
+          <path d="M120,305 Q180,260 225,305" stroke-width="2" opacity=".5"/>
+        </g>
+        <text x="20" y="340">Die</text><text x="80" y="340" fill="#d98e1f">Bank</text><text x="185" y="340">gab</text><text x="250" y="340">mir</text><text x="315" y="340">einen</text><text x="405" y="340" fill="#d98e1f">Kredit.</text>
+      </svg>
+      <p class="klein">Dicke Linie: starke Verbindung. Vereinfachte Darstellung.</p>
+    </div>
+    <ul>
+      <li>Das Modell setzt jedes Token mit allen anderen Tokens im Text in Beziehung (<b>Aufmerksamkeit</b>).</li>
+      <li>So bekommt „Bank“ je nach Satz eine andere Bedeutung.</li>
+      <li>Die Bauweise heißt <b>Transformer</b> (Google, 2017). Daher das T in GPT.</li>
+      <li>Das <b>Kontextfenster</b> begrenzt, wie viel Text gleichzeitig zählt.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 9 Abschnitt 2 -->
+<section class="folie abschnitt" data-notiz="Teil 2: der stochastische Kern. Hier liegt der Schlüssel zu Stärken und Fehlern.">
+  <div class="text"><div class="nr">2</div><h1>Wörter mit Wahrscheinlichkeit</h1><p>Warum jede Antwort ein wenig Zufall enthält</p></div>
+  <img src="bilder/03-wuerfel.webp" alt="">
+</section>
+
+<!-- 10 Ein Wort nach dem anderen -->
+<section class="folie" data-notiz="Kernfolie. Das Modell berechnet für jedes mögliche Token eine Wahrscheinlichkeit, das sind rund 100 000 Werte. Dann wird gezogen, wie mit einem gezinkten Glücksrad. Im Beispiel gewinnt 'Roman', obwohl 'Text' wahrscheinlicher war. Für Mathe-Kolleginnen und -Kollegen: Ziehen aus einer diskreten Verteilung über die kumulierten Wahrscheinlichkeiten.">
+  <div class="dach">Stochastische Wortwahl</div>
+  <h2>Ein Wort nach dem anderen</h2>
+  <div class="video-l">
+    <div class="medien"><video src="videos/naechsteswort.mp4" poster="videos/naechsteswort.jpg" muted playsinline preload="metadata"></video><button class="nochmal">↻ nochmal</button></div>
+    <ol>
+      <li>Für <b>jedes</b> mögliche Token eine Wahrscheinlichkeit berechnen.</li>
+      <li>Ein Token <b>per Zufall ziehen</b>, gewichtet nach diesen Wahrscheinlichkeiten.</li>
+      <li>Anhängen und von vorn beginnen.</li>
+    </ol>
+    <p class="klein" style="grid-column:2">Eine Antwort mit 300 Wörtern braucht etwa 400 solche Schritte.</p>
+  </div>
+</section>
+
+<!-- 11 Temperatur -->
+<section class="folie" data-notiz="Temperatur ist eine Einstellung beim Ziehen. In Chat-Oberflächen ist sie meist fest eingestellt. Deshalb bekommt man auf dieselbe Frage zweimal eine andere Antwort. Für Aufgaben mit einer richtigen Lösung ist das ein Risiko, für Ideensammlungen ein Vorteil.">
+  <div class="dach">Stochastische Wortwahl</div>
+  <h2>Temperatur: wie mutig gezogen wird</h2>
+  <div class="video-l">
+    <div class="medien"><video src="videos/temperatur.mp4" poster="videos/temperatur.jpg" muted playsinline preload="metadata"></video><button class="nochmal">↻ nochmal</button></div>
+    <ul>
+      <li><b>Niedrig:</b> fast immer das wahrscheinlichste Wort. Gleichförmig und verlässlich.</li>
+      <li><b>Hoch:</b> auch seltene Wörter. Abwechslungsreich, aber fehleranfälliger.</li>
+      <li>Dieselbe Frage zweimal gestellt ergibt meist zwei verschiedene Antworten.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 12 Selbst ausprobieren -->
+<section class="folie" data-notiz="Live-Demo. Erst bei Temperatur 1 zehnmal ziehen, dann auf 0,2 stellen und noch einmal. Die Werte sind ausgedacht, das Prinzip ist echt. Frage ans Publikum: Bei welcher Temperatur würden Sie ein Zeugnis formulieren lassen, bei welcher Ideen für eine Projektwoche?">
+  <div class="dach">Zum Ausprobieren</div>
+  <h2>Selbst ziehen</h2>
+  <div class="spiel">
+    <div id="zeilen"></div>
+    <div>
+      <p class="klein">Satzanfang</p>
+      <div class="satz">Mein Lieblingsfach ist <span id="gezogen">…</span></div>
+      <p class="klein" style="margin-bottom:4px">Temperatur: <b id="tWert" style="color:var(--tinte)">1,0</b></p>
+      <input class="regler" id="tRegler" type="range" min="0.1" max="2" step="0.1" value="1" aria-label="Temperatur">
+      <div style="margin-top:26px">
+        <button class="knopf" id="zieh1">Ein Wort ziehen</button>
+        <button class="knopf hell" id="zieh10">10 ×</button>
+        <button class="knopf hell" id="leeren">leeren</button>
+      </div>
+      <p class="klein" style="margin-top:22px">Rechte Spalte: wie oft jedes Wort gezogen wurde. Die Werte sind ausgedacht.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 13 Halluzinationen -->
+<section class="folie" data-notiz="Das Modell hat kein eingebautes Signal für 'weiß ich nicht'. Eine erfundene Literaturangabe ist für das Modell einfach eine wahrscheinliche Fortsetzung: Autor, Jahr, Zeitschrift, Seitenzahl. Gegenmittel: Dokumente mitgeben, Suche einschalten, Quellen prüfen.">
+  <div class="dach">Folge</div>
+  <h2>Warum KI Fehler erfindet</h2>
+  <div class="zwei">
+    <div>
+      <ul>
+        <li>Das Modell erzeugt <b>plausiblen</b> Text, keinen geprüften.</li>
+        <li>Fehlt Wissen, füllt es die Lücke mit etwas, das wahrscheinlich klingt. Man nennt das <b>Halluzination</b>.</li>
+        <li>Ein sicherer Ton ist kein Zeichen für Richtigkeit.</li>
+      </ul>
+    </div>
+    <div>
+      <div class="karte">
+        <h3>Typische Fälle</h3>
+        <ul><li>Literaturangaben, die es nicht gibt</li><li>falsche Zahlen und Daten</li><li>erfundene Paragrafen und Urteile</li></ul>
+      </div>
+      <div class="karte" style="margin-top:20px">
+        <h3>Was hilft</h3>
+        <ul><li>eigene Dokumente als Grundlage mitgeben</li><li>Quellen nennen lassen und prüfen</li><li>Fachwissen der Lehrkraft</li></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 14 Unterricht -->
+<section class="folie" data-notiz="Kurze Zwischenbilanz für den Unterricht. KI-Detektoren arbeiten selbst mit Wahrscheinlichkeiten und liegen oft falsch, auch bei Texten von Menschen. Sie taugen nicht als Beweis.">
+  <div class="dach">Zwischenbilanz</div>
+  <h2>Was das für den Unterricht heißt</h2>
+  <div class="raster3">
+    <div class="karte"><h3>Prüfen lernen</h3><p>Schülerinnen und Schüler brauchen das Prinzip: KI liefert Wahrscheinliches, nicht Wahres.</p></div>
+    <div class="karte"><h3>Prozess sichtbar machen</h3><p>Aufgaben, bei denen Weg, Entwürfe und Begründung zählen, nicht nur das Ergebnis.</p></div>
+    <div class="karte"><h3>Keine Detektoren als Beweis</h3><p>KI-Erkennungsprogramme irren sich oft, auch bei Texten von Menschen.</p></div>
+  </div>
+</section>
+
+<!-- 15 Abschnitt 3 -->
+<section class="folie abschnitt" data-notiz="Teil 3: Bisher hat das Modell nur Text geschrieben. Jetzt bekommt es Werkzeuge.">
+  <div class="text"><div class="nr">3</div><h1>Vom Chat zum Agenten</h1><p>Was passiert, wenn ein Sprachmodell Werkzeuge bekommt</p></div>
+  <img src="bilder/04-agent.webp" alt="">
+</section>
+
+<!-- 16 Chat vs Agent -->
+<section class="folie" data-notiz="Der entscheidende Unterschied ist, wer die Schritte zwischen den Antworten macht. Im Chat sind Sie das. Beim Agenten macht das Programm die Schritte selbst und meldet sich, wenn es fertig ist oder eine Freigabe braucht.">
+  <div class="dach">Vergleich</div>
+  <h2>Chat und Agent</h2>
+  <table>
+    <tr><th></th><th>Chat</th><th>Agent</th></tr>
+    <tr><td>Auftrag</td><td>eine Frage</td><td>ein Ziel</td></tr>
+    <tr><td>Ablauf</td><td>eine Antwort, dann wartet das Modell</td><td>plant Schritte und arbeitet sie nacheinander ab</td></tr>
+    <tr><td>Werkzeuge</td><td>keine oder wenige</td><td>Dateien, Browser, Programme, Suche</td></tr>
+    <tr><td>Prüfen</td><td>der Mensch prüft jede Antwort</td><td>der Agent prüft Zwischenergebnisse selbst, der Mensch das Ergebnis</td></tr>
+    <tr><td>Rolle des Menschen</td><td>kopiert, fügt ein, führt aus</td><td>gibt Ziel und Rechte vor, gibt frei, prüft</td></tr>
+  </table>
+</section>
+
+<!-- 17 Harness -->
+<section class="folie" data-notiz="Harness ist englisch für Geschirr, wie beim Pferd. Das Modell liefert die Kraft, der Harness lenkt sie. Gleiches Modell, anderer Harness: ganz anderes Verhalten. Die Rechte sind der wichtigste Teil für Schulen: Was darf der Agent ohne Nachfrage, was nur nach Freigabe?">
+  <div class="dach">Agentische KI</div>
+  <h2>Der Harness</h2>
+  <div class="video-l">
+    <div class="medien"><video src="videos/harness.mp4" poster="videos/harness.jpg" muted playsinline preload="metadata"></video><button class="nochmal">↻ nochmal</button></div>
+    <ul>
+      <li>Der <b>Harness</b> ist das Programm um das Sprachmodell.</li>
+      <li><b class="blau">Anweisungen:</b> Rolle, Regeln, Projektwissen</li>
+      <li><b class="bernstein">Werkzeuge:</b> lesen, schreiben, suchen, ausführen</li>
+      <li><b class="salbei">Gedächtnis:</b> Notizen über die Sitzung hinaus</li>
+      <li><b class="rot">Rechte:</b> was nur mit Freigabe passieren darf</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 18 Schleife -->
+<section class="folie" data-notiz="Das Modell selbst bleibt ein Wortvorhersager. Es schreibt zum Beispiel: 'Werkzeug: Python, Code: ...'. Der Harness erkennt das, führt den Code aus und hängt das Ergebnis an den Text an. Dann sagt das Modell das nächste Token voraus. Diese Schleife läuft, bis das Modell schreibt, dass es fertig ist. Im Beispiel findet der Agent seinen eigenen Rechenfehler, weil er die Lösungen mit einem Programm nachrechnet.">
+  <div class="dach">Agentische KI</div>
+  <h2>Die Agenten-Schleife</h2>
+  <div class="video-l">
+    <div class="medien"><video src="videos/agentschleife.mp4" poster="videos/agentschleife.jpg" muted playsinline preload="metadata"></video><button class="nochmal">↻ nochmal</button></div>
+    <ul>
+      <li>Das Modell schreibt einen <b>Werkzeugaufruf</b> als Text.</li>
+      <li>Der Harness führt ihn aus und gibt das Ergebnis zurück.</li>
+      <li>Das Modell liest es und entscheidet den nächsten Schritt.</li>
+      <li>Das wiederholt sich, bis die Aufgabe erledigt ist.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 19 Beispiele -->
+<section class="folie" data-notiz="Die Produktnamen ändern sich schnell. Wichtig ist die Bauart: Wo läuft der Agent, welche Werkzeuge hat er, welche Rechte? Programmier-Agenten arbeiten auf dem eigenen Rechner mit Dateien und Programmen, Browser-Agenten bedienen Webseiten.">
+  <div class="dach">Agentische KI</div>
+  <h2>Agenten im Alltag</h2>
+  <div class="raster3">
+    <div class="karte"><h3>Auf dem Computer</h3><p>Claude Code, OpenAI Codex, Gemini CLI. Arbeiten mit Dateien und Programmen in einem Ordner.</p></div>
+    <div class="karte"><h3>Im Browser</h3><p>ChatGPT Agent, Claude in Chrome. Öffnen Webseiten, lesen, füllen Formulare aus.</p></div>
+    <div class="karte"><h3>In Büroprogrammen</h3><p>Assistenten in Office, Google Workspace und Lernplattformen. Arbeiten mit Dokumenten und Tabellen.</p></div>
+  </div>
+  <p class="klein" style="margin-top:28px">Stand November 2026. Die Namen ändern sich schnell, die Bauart bleibt: Modell, Harness, Werkzeuge, Rechte.</p>
+</section>
+
+<!-- 20 Wie diese Präsentation entstand -->
+<section class="folie" data-notiz="Diese Präsentation ist selbst ein Beispiel. Der Agent hat in einem Ordner gearbeitet, Animationen programmiert und gerendert, Bilder bei einem anderen KI-Dienst bestellt, die Seite im Browser geprüft und auf GitHub veröffentlicht. Die Lehrkraft hat den Auftrag gegeben und das Ergebnis geprüft.">
+  <div class="dach">Beispiel</div>
+  <h2>Wie diese Präsentation entstand</h2>
+  <div class="zwei">
+    <div>
+      <div class="karte" style="margin-bottom:24px"><p class="klein" style="margin-bottom:6px">Auftrag in einem Absatz</p><p>„Erstelle eine Präsentation für Lehrkräfte über die Funktionsweise von KI, mit Animationen und Bildern, und stelle sie online.“</p></div>
+      <p>Die Lehrkraft gibt das Ziel vor, prüft das Ergebnis und trägt die Verantwortung.</p>
+    </div>
+    <ol>
+      <li>eigene Notizen und Regeln gelesen</li>
+      <li>Folien geschrieben</li>
+      <li>sechs Animationen programmiert und als Video gerendert</li>
+      <li>sechs Bilder bei einem zweiten KI-Dienst bestellt</li>
+      <li>Seite im Browser getestet, Fehler behoben</li>
+      <li>auf GitHub veröffentlicht</li>
+    </ol>
+  </div>
+</section>
+
+<!-- 21 Abschnitt 4 -->
+<section class="folie abschnitt" data-notiz="Teil 4: Was heißt das für Grundschule, Förderschule, Sekundarstufe und Berufskolleg?">
+  <div class="text"><div class="nr">4</div><h1>Möglichkeiten in der Schule</h1><p>Für alle Schulformen, mit klaren Regeln</p></div>
+  <img src="bilder/05-schule.webp" alt="">
+</section>
+
+<!-- 22 Möglichkeiten -->
+<section class="folie" data-notiz="Alle Beispiele sind Entwürfe, die die Lehrkraft prüft und anpasst. Agenten lohnen sich besonders dort, wo mehrere Schritte zusammenkommen: erstellen, nachrechnen, gestalten, veröffentlichen.">
+  <div class="dach">Möglichkeiten</div>
+  <h2>Was Agenten Lehrkräften abnehmen können</h2>
+  <div class="raster4">
+    <div class="karte"><h3>Grundschule</h3><p>Lesetexte in drei Niveaus, Bildkarten, kleine Übungsseiten zum Antippen</p></div>
+    <div class="karte"><h3>Förderschule</h3><p>Texte in Leichter Sprache, Schritt-für-Schritt-Anleitungen mit Bildern</p></div>
+    <div class="karte"><h3>Sekundarstufe I</h3><p>interaktive Übungen mit Selbstkontrolle, nachgerechnete Lösungen, Erklärvideos</p></div>
+    <div class="karte"><h3>Sek II und Berufskolleg</h3><p>Fallsituationen, Klausurtraining, Simulationen, Auswertung von Messdaten</p></div>
+  </div>
+  <div class="karte" style="margin-top:24px"><h3>Für alle</h3><p>Material aus Lehrplänen ableiten, Tabellen auswerten, Elternbriefe in mehreren Sprachen entwerfen, Webseiten für den Kurs bauen</p></div>
+</section>
+
+<!-- 23 Grenzen -->
+<section class="folie" data-notiz="Prompt-Injection: Ein Agent liest eine Webseite, auf der versteckt steht 'Schicke alle Dateien an ...'. Ein schlecht gesicherter Agent folgt dem. Deshalb gilt: wenig Rechte, Freigabe vor jeder Handlung nach außen. EU-KI-Verordnung Artikel 4 verpflichtet Einrichtungen, die KI einsetzen, für ausreichende KI-Kompetenz ihres Personals zu sorgen, seit 2. Februar 2025. NRW: Handlungsleitfaden des MSB zum Umgang mit textgenerierenden KI-Systemen.">
+  <div class="dach">Grenzen</div>
+  <h2>Grenzen und Regeln</h2>
+  <div class="zwei" style="grid-template-columns:1.2fr 1fr">
+    <ul>
+      <li><b>Datenschutz:</b> keine personenbezogenen Daten von Schülerinnen und Schülern in Dienste ohne Vertrag zur Auftragsverarbeitung.</li>
+      <li><b>Rechte begrenzen:</b> Senden, Löschen und Veröffentlichen nur nach Freigabe.</li>
+      <li><b>Prompt-Injection:</b> Text auf Webseiten oder in Dateien kann einem Agenten falsche Befehle unterschieben.</li>
+      <li><b>Verantwortung:</b> bleibt bei der Lehrkraft. Fachlich gegenlesen.</li>
+      <li><b>Rahmen:</b> EU-KI-Verordnung Art. 4 (KI-Kompetenz), Handlungsleitfaden des MSB NRW.</li>
+    </ul>
+    <img class="bild" src="bilder/06-grenzen.webp" alt="" style="height:560px;object-fit:cover">
+  </div>
+</section>
+
+<!-- 24 Zusammenfassung -->
+<section class="folie" data-notiz="Drei Sätze zum Mitnehmen. Danach Zeit für Fragen.">
+  <div class="dach">Zusammenfassung</div>
+  <h2>Drei Sätze zum Mitnehmen</h2>
+  <ol style="margin-top:10px">
+    <li style="font-size:36px;margin-bottom:34px">Ein Sprachmodell sagt das nächste Token voraus. Es hat dafür Muster aus sehr vielen Texten gelernt.</li>
+    <li style="font-size:36px;margin-bottom:34px">Jedes Wort wird mit Wahrscheinlichkeit gezogen. Deshalb klingen Antworten plausibel, sind aber nicht automatisch richtig.</li>
+    <li style="font-size:36px">Ein Agent ist ein Sprachmodell im Harness: mit Werkzeugen, Gedächtnis und Rechten. Er arbeitet in Schleifen, bis ein Ziel erreicht ist.</li>
+  </ol>
+</section>
+
+<!-- 25 Quellen -->
+<section class="folie" data-notiz="Quellen zum Weiterlesen. Die Videoreihe von 3Blue1Brown erklärt Transformer sehr anschaulich (englisch, mit deutschen Untertiteln).">
+  <div class="dach">Weiterlesen</div>
+  <h2>Quellen</h2>
+  <ul>
+    <li>Vaswani u. a. (2017): <i>Attention Is All You Need.</i> Grundlagenartikel zum Transformer.</li>
+    <li>3Blue1Brown: Videoreihe <i>Neural Networks</i>, Kapitel zu GPT und Attention (YouTube).</li>
+    <li>Anthropic (2024): <i>Building effective agents.</i> Bauarten von Agenten.</li>
+    <li>Verordnung (EU) 2024/1689 (KI-Verordnung), Art. 4: KI-Kompetenz.</li>
+    <li>MSB NRW (2023): Handlungsleitfaden zum Umgang mit textgenerierenden KI-Systemen.</li>
+  </ul>
+  <p class="klein" style="margin-top:auto">Animationen: Remotion. Bilder: ChatGPT. Zusammengestellt mit Claude Code. <!-- rechtliches --><span class="erik-recht"> · <a href="https://dm-pkg.de/impressum.html">Impressum</a> · <a href="https://dm-pkg.de/datenschutz.html">Datenschutz</a></span><!-- /rechtliches --></p>
+</section>
+
+<div id="leiste"><div id="fortschritt"></div></div>
+<div id="nummer"></div>
+</div></div>
+
+<div id="tasten">
+  <button id="zurueck" aria-label="Vorherige Folie">‹</button>
+  <button id="vollbild" aria-label="Vollbild">⤢</button>
+  <button id="weiter" aria-label="Nächste Folie">›</button>
+</div>
+<div id="hilfe">← → blättern · F Vollbild · S Notizen</div>
+<div id="notiz"></div>
+
+<script>
+const folien=[...document.querySelectorAll('.folie')];
+const lw=document.getElementById('leinwand');
+let i=0;
+
+function skalieren(){
+  const s=Math.min(innerWidth/1600,innerHeight/900);
+  lw.style.transform=`scale(${s})`;
+}
+addEventListener('resize',skalieren);skalieren();
+
+function zeige(n){
+  i=Math.max(0,Math.min(folien.length-1,n));
+  folien.forEach((f,k)=>{
+    const an=k===i;
+    f.classList.toggle('aktiv',an);
+    f.querySelectorAll('video').forEach(v=>{
+      if(an){v.currentTime=0;v.play().catch(()=>{});}else v.pause();
+    });
+  });
+  document.getElementById('fortschritt').style.width=`${(i/(folien.length-1))*100}%`;
+  document.getElementById('nummer').textContent=`${i+1} / ${folien.length}`;
+  document.getElementById('notiz').innerHTML=`<b>Notiz zu Folie ${i+1}:</b> `+(folien[i].dataset.notiz||'');
+  history.replaceState(null,'',`#${i+1}`);
+}
+const vollbild=()=>document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen().catch(()=>{});
+
+addEventListener('keydown',e=>{
+  if(e.target.tagName==='INPUT')return;
+  if(['ArrowRight','PageDown',' ','Enter'].includes(e.key)){e.preventDefault();zeige(i+1);}
+  else if(['ArrowLeft','PageUp','Backspace'].includes(e.key)){e.preventDefault();zeige(i-1);}
+  else if(e.key==='Home')zeige(0);
+  else if(e.key==='End')zeige(folien.length-1);
+  else if(e.key.toLowerCase()==='f')vollbild();
+  else if(e.key.toLowerCase()==='s')document.getElementById('notiz').classList.toggle('offen');
+});
+document.getElementById('weiter').onclick=()=>zeige(i+1);
+document.getElementById('zurueck').onclick=()=>zeige(i-1);
+document.getElementById('vollbild').onclick=vollbild;
+
+let x0=null;
+addEventListener('touchstart',e=>{x0=e.touches[0].clientX},{passive:true});
+addEventListener('touchend',e=>{
+  if(x0===null)return;const dx=e.changedTouches[0].clientX-x0;
+  if(Math.abs(dx)>60&&e.target.tagName!=='INPUT')zeige(i+(dx<0?1:-1));x0=null;
+});
+
+document.querySelectorAll('.medien').forEach(m=>{
+  const v=m.querySelector('video');
+  const neu=()=>{v.currentTime=0;v.play().catch(()=>{});};
+  v.onclick=neu;m.querySelector('.nochmal').onclick=neu;
+});
+document.querySelectorAll('.aufdecken').forEach(a=>a.onclick=()=>a.classList.add('offen'));
+
+// Spiel: Wort ziehen mit Temperatur
+const FAECHER=[['Mathe',2.0],['Sport',1.9],['Kunst',1.5],['Deutsch',1.4],['Musik',1.2],['Biologie',1.0],['Physik',0.8],['Latein',0.3]];
+const zaehl=FAECHER.map(()=>0);
+const zeilen=document.getElementById('zeilen');
+zeilen.innerHTML=FAECHER.map(([w],k)=>`<div class="zeile" id="z${k}"><span>${w}</span><div><div class="balken"></div></div><span class="p"></span><span class="n">0</span></div>`).join('');
+const regler=document.getElementById('tRegler');
+const verteilung=()=>{const T=+regler.value;const z=FAECHER.map(([,l])=>Math.exp(l/T));const s=z.reduce((a,b)=>a+b,0);return z.map(v=>v/s);};
+function malen(treffer=-1){
+  const p=verteilung();
+  document.getElementById('tWert').textContent=(+regler.value).toFixed(1).replace('.',',');
+  FAECHER.forEach((_,k)=>{
+    const z=document.getElementById('z'+k);
+    z.querySelector('.balken').style.width=`${p[k]*100/Math.max(...p)*0.98}%`;
+    z.querySelector('.p').textContent=`${Math.round(p[k]*100)} %`;
+    z.querySelector('.n').textContent=zaehl[k];
+    z.classList.toggle('treffer',k===treffer);
+  });
+}
+function ziehen(){const p=verteilung();let r=Math.random(),k=0;while(k<p.length-1&&r>p[k]){r-=p[k];k++;}zaehl[k]++;document.getElementById('gezogen').textContent=FAECHER[k][0]+'.';return k;}
+regler.oninput=()=>malen();
+document.getElementById('zieh1').onclick=()=>malen(ziehen());
+document.getElementById('zieh10').onclick=()=>{let k;for(let n=0;n<10;n++)k=ziehen();malen(k);};
+document.getElementById('leeren').onclick=()=>{zaehl.fill(0);document.getElementById('gezogen').textContent='…';malen();};
+malen();
+
+const ausHash=()=>{const n=(parseInt(location.hash.slice(1))||1)-1;if(n!==i||!folien[i].classList.contains('aktiv'))zeige(n);};
+addEventListener('hashchange',ausHash);
+ausHash();
+</script>
+</body>
+</html>

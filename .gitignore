@@ -1,0 +1,9 @@
+*
+!.gitignore
+!index.html
+!README.md
+!bilder/
+!bilder/*.webp
+!videos/
+!videos/*.mp4
+!videos/*.jpg
