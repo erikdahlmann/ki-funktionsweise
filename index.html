@@ -136,6 +136,51 @@ td:last-child{color:var(--blau)}
 #hilfe{position:fixed;left:14px;bottom:14px;font-size:13px;color:#5d6578;z-index:5}
 .erik-recht{font-size:18px;color:var(--grau)}.erik-recht a{color:inherit}
 
+/* Quellenzeile, Kapitelmarke */
+.quelle{position:absolute;left:90px;bottom:26px;font-size:16px;color:#7a8296;max-width:1150px;line-height:1.35}
+#kapitel{position:absolute;right:90px;top:34px;font-size:17px;color:#7a8296;letter-spacing:1px;z-index:3;transition:opacity .3s}
+.zahl{font-size:20px;color:var(--grau);margin-top:6px;display:block;font-variant-numeric:tabular-nums}
+.zahl b{color:var(--bernstein)}
+
+/* Folie mit Hintergrundbild */
+.hintergrund{position:absolute;inset:0;z-index:-1;overflow:hidden}
+.hintergrund img{width:100%;height:100%;object-fit:cover;opacity:.55}
+.hintergrund::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,var(--papier) 0%,rgba(19,26,46,.86) 45%,rgba(19,26,46,.35) 100%)}
+.folie.aktiv .hintergrund img{animation:zoom 20s ease-in-out infinite alternate}
+
+/* Energie: gestapelte Säulen */
+.saeulen{display:flex;align-items:flex-end;gap:46px;height:430px;padding:0 10px;border-bottom:2px solid var(--linie)}
+.saeule{width:120px;display:flex;flex-direction:column;justify-content:flex-end;position:relative;height:100%}
+.saeule .teil{width:100%;transform-origin:bottom;transform:scaleY(0)}
+.folie.aktiv .saeule .teil{animation:wachsen .9s cubic-bezier(.16,1,.3,1) forwards}
+.folie.aktiv .saeule:nth-child(2) .teil{animation-delay:.25s}.folie.aktiv .saeule:nth-child(3) .teil{animation-delay:.5s}
+@keyframes wachsen{to{transform:scaleY(1)}}
+.saeule .ki{background:var(--bernstein);border-radius:0 0 0 0}
+.saeule .rest{background:#3a4670;border-radius:8px 8px 0 0}
+.saeule .wert{position:absolute;left:0;right:0;text-align:center;font-size:24px;font-weight:700;font-variant-numeric:tabular-nums}
+.saeule .jahr{position:absolute;left:0;right:0;bottom:-40px;text-align:center;font-size:22px;color:var(--grau)}
+.legende{display:flex;gap:26px;font-size:20px;color:var(--grau);margin-top:58px}
+.legende i{display:inline-block;width:16px;height:16px;border-radius:4px;margin-right:8px;vertical-align:-2px}
+
+/* Energie: Balken auf Zehnerskala */
+.lbalken{display:grid;grid-template-columns:330px 1fr 120px;gap:14px;align-items:center;margin-bottom:13px;font-size:23px}
+.lbalken .spur{height:30px;position:relative}
+.lbalken .b{height:100%;border-radius:6px;background:var(--blau);width:0}
+.folie.aktiv .lbalken .b{animation:breit 1s cubic-bezier(.16,1,.3,1) forwards}
+.lbalken .w{font-variant-numeric:tabular-nums;font-weight:700;text-align:right}
+.lbalken.hervor .b{background:var(--bernstein)}
+.lbalken.rot .b{background:var(--rot)}
+@keyframes breit{to{width:var(--w)}}
+.skala{display:grid;grid-template-columns:330px 1fr 120px;gap:14px;font-size:16px;color:#7a8296;margin-top:4px}
+.skala div{display:flex;justify-content:space-between}
+
+/* Glossar */
+.glossar{display:grid;grid-template-columns:1fr 1fr;gap:14px 40px}
+.glossar div{border-left:4px solid var(--blau);padding:4px 0 4px 18px}
+.glossar div:nth-child(4n+2),.glossar div:nth-child(4n+3){border-color:var(--bernstein)}
+.glossar b{font-size:25px;display:block}
+.glossar span{font-size:21px;color:var(--grau);line-height:1.35}
+
 @media (prefers-reduced-motion:reduce){
   .folie.aktiv > *,.folie.aktiv li,.folie.aktiv .karte,.folie.aktiv .bildflaeche img,#leinwand::before,#leinwand::after{animation:none!important}
   .ablauf div::before{width:100%}
@@ -164,7 +209,7 @@ td:last-child{color:var(--blau)}
     <div><b>1</b><span>Was ein Sprachmodell ist</span><p class="klein">Training, Tokens, Bedeutung, Kontext</p></div>
     <div><b>2</b><span>Wie es Wörter auswählt</span><p class="klein">Wahrscheinlichkeit, Zufall, Temperatur</p></div>
     <div><b>3</b><span>Was ein Agent ist</span><p class="klein">Harness, Werkzeuge, Schleife</p></div>
-    <div><b>4</b><span>Was das für Schule heißt</span><p class="klein">KMK, AIS.chat, Möglichkeiten, Grenzen</p></div>
+    <div><b>4</b><span>Was das für Schule heißt</span><p class="klein">KMK, AIS.chat, Möglichkeiten, Grenzen, Energie</p></div>
   </div>
 </section>
 
@@ -187,8 +232,8 @@ td:last-child{color:var(--blau)}
     <div>
       <ul>
         <li>Ein <b>großes Sprachmodell</b> (Large Language Model, <b>LLM</b>) berechnet, wie ein Text am wahrscheinlichsten weitergeht.</li>
-        <li>Es schlägt nichts nach und speichert keine fertigen Sätze.</li>
-        <li>Es hat <b>Muster</b> aus sehr vielen Texten gelernt.</li>
+        <li>Es schlägt nichts nach. Es hat keine Datenbank mit Sätzen, sondern gelernte <b>Muster</b> aus sehr vielen Texten.</li>
+        <li>Häufige Texte kann es trotzdem fast wörtlich wiedergeben.</li>
       </ul>
       <div class="karte quer" style="margin-top:20px"><img class="ikon" src="bilder/s-aischat.webp" alt=""><p><b>Bekannte Modelle:</b> GPT (ChatGPT), Claude, Gemini, Llama, Mistral. Im Unterricht in NRW: das Landeswerkzeug <b>AIS.chat</b>.</p></div>
     </div>
@@ -202,13 +247,14 @@ td:last-child{color:var(--blau)}
   <div class="video-l">
     <div class="medien"><video src="videos/training.mp4" poster="videos/training.jpg" muted playsinline preload="metadata"></video><button class="nochmal">↻ nochmal</button></div>
     <ul>
-      <li><b>Vortraining:</b> Billionen Wörter aus Internet, Büchern und Programmcode.</li>
-      <li>Die Aufgabe ist immer gleich: das nächste Stück Text vorhersagen.</li>
-      <li>Nach jedem Fehler werden Milliarden <b>Parameter</b> ein wenig verstellt.</li>
+      <li><b>Vortraining:</b> Billionen Tokens aus Internet, Büchern und Programmcode.<span class="zahl">Llama 3 (2024): über <b>15 Billionen</b> Tokens</span></li>
+      <li>Die Aufgabe ist immer gleich: das nächste Token vorhersagen.</li>
+      <li>Nach jedem Fehler werden die <b>Parameter</b> ein wenig verstellt.<span class="zahl">GPT-3 (2020): <b>175 Milliarden</b> Parameter</span></li>
       <li><b>Feinschliff:</b> Menschen bewerten Antworten. So wird aus dem Textergänzer ein Assistent.</li>
-      <li>Das Wissen endet am Trainingsende.</li>
+      <li>Das Wissen endet am Trainingsende (Stichtag).</li>
     </ul>
   </div>
+  <div class="quelle">Quellen: Meta (2024), Llama 3 Model Card; Brown u. a. (2020), Language Models are Few-Shot Learners.</div>
 </section>
 
 <!-- 6 Tokens -->
@@ -219,8 +265,8 @@ td:last-child{color:var(--blau)}
     <div class="medien"><video src="videos/tokens.mp4" poster="videos/tokens.jpg" muted playsinline preload="metadata"></video><button class="nochmal">↻ nochmal</button></div>
     <ul>
       <li>Das Modell sieht keine Wörter, sondern <b>Tokens</b>: häufige Wortteile.</li>
-      <li>Jedes Token hat eine feste Nummer.</li>
-      <li>Deutsche Texte brauchen mehr Tokens als englische.</li>
+      <li>Jedes Token hat eine feste Nummer.<span class="zahl">Wortschatz heutiger Modelle: <b>100 000 bis 200 000</b> Tokens</span></li>
+      <li>Deutsche Texte brauchen mehr Tokens als englische, weil überwiegend mit Englisch trainiert wird.</li>
       <li>Folge: Buchstaben zählen oder Silben trennen fällt Modellen schwer.</li>
     </ul>
   </div>
@@ -234,7 +280,7 @@ td:last-child{color:var(--blau)}
     <div class="medien"><video src="videos/bedeutung.mp4" poster="videos/bedeutung.jpg" muted playsinline preload="metadata"></video><button class="nochmal">↻ nochmal</button></div>
     <ul>
       <li>Jedes Token wird zu einer langen Liste von Zahlen, einem <b>Vektor</b>.</li>
-      <li>Jeder Vektor ist ein Punkt in einem Raum mit Tausenden Richtungen.</li>
+      <li>Jeder Vektor ist ein Punkt in einem Raum mit Tausenden Richtungen.<span class="zahl">GPT-3: <b>12 288</b> Zahlen pro Token</span></li>
       <li>Wörter mit ähnlicher Bedeutung liegen nah beieinander.</li>
       <li>Diese Ordnung hat das Modell im Training selbst gefunden.</li>
     </ul>
@@ -251,9 +297,10 @@ td:last-child{color:var(--blau)}
       <li>Das Modell setzt jedes Token mit allen anderen in Beziehung (<b>Aufmerksamkeit</b>).</li>
       <li>So bekommt „Bank“ je nach Satz eine andere Bedeutung.</li>
       <li>Die Bauweise heißt <b>Transformer</b> (Google, 2017). Daher das T in GPT.</li>
-      <li>Das <b>Kontextfenster</b> begrenzt, wie viel Text gleichzeitig zählt.</li>
+      <li>Das <b>Kontextfenster</b> begrenzt, wie viel Text gleichzeitig zählt.<span class="zahl">heute meist <b>128 000 bis über 1 Mio.</b> Tokens, also bis zu mehreren Romanen</span></li>
     </ul>
   </div>
+  <div class="quelle">Quelle: Vaswani u. a. (2017), Attention Is All You Need. Kontextfenster laut Herstellerangaben, Stand November 2026.</div>
 </section>
 
 <!-- 9 Abschnitt 2 -->
@@ -270,7 +317,7 @@ td:last-child{color:var(--blau)}
     <div class="medien"><video src="videos/naechsteswort.mp4" poster="videos/naechsteswort.jpg" muted playsinline preload="metadata"></video><button class="nochmal">↻ nochmal</button></div>
     <div>
       <ol>
-        <li>Für <b>jedes</b> mögliche Token eine Wahrscheinlichkeit berechnen.</li>
+        <li>Für <b>jedes</b> mögliche Token eine Wahrscheinlichkeit berechnen, also 100 000 Werte und mehr.</li>
         <li>Ein Token <b>per Zufall ziehen</b>, gewichtet nach diesen Wahrscheinlichkeiten.</li>
         <li>Anhängen und von vorn beginnen.</li>
       </ol>
@@ -323,10 +370,29 @@ td:last-child{color:var(--blau)}
     <ul>
       <li>Das Modell erzeugt <b>plausiblen</b> Text, keinen geprüften. Man nennt erfundene Inhalte <b>Halluzination</b>.</li>
       <li>Typisch: Quellen, Zahlen, Paragrafen.</li>
-      <li>Ein sicherer Ton ist kein Zeichen für Richtigkeit.</li>
-      <li><b>Was hilft:</b> eigene Dokumente mitgeben, Quellen prüfen, Fachwissen.</li>
+      <li>Ein sicherer Ton ist kein Zeichen für Richtigkeit. Neue Modelle irren seltener, aber nicht nie.</li>
+      <li><b>Was hilft:</b> eigene Dokumente mitgeben, Suche einschalten, Quellen prüfen, Fachwissen.</li>
     </ul>
   </div>
+</section>
+
+<!-- Denkende Modelle -->
+<section class="folie" data-notiz="Seit Herbst 2024 gibt es Denk-Modelle (Reasoning-Modelle), zuerst OpenAI o1, heute bei allen großen Anbietern. Das Prinzip bleibt dasselbe: Token für Token. Das Modell schreibt aber zuerst eine lange Gedankenkette, oft Tausende Tokens, die man nur zusammengefasst oder gar nicht sieht. Erst dann folgt die Antwort. Bei Mathematik, Logik und Planung hilft das stark. Der Preis: mehr Tokens, also mehr Wartezeit und mehr Strom. Agenten nutzen fast immer solche Modelle.">
+  <div class="dach">Stochastische Wortwahl</div>
+  <h2>Modelle, die erst „nachdenken“</h2>
+  <div class="zwei" style="grid-template-columns:1fr 1fr;gap:48px">
+    <div>
+      <ul>
+        <li><b>Denk-Modelle</b> (Reasoning) schreiben vor der Antwort eine lange Gedankenkette.</li>
+        <li>Das Prinzip bleibt: Token für Token, mit Wahrscheinlichkeit.</li>
+        <li>Mathematik, Logik und Planung werden deutlich besser.</li>
+        <li>Der Preis: viel mehr Tokens, also mehr Wartezeit und mehr Strom.</li>
+      </ul>
+      <div class="karte" style="margin-top:14px"><p><b>Faustregel:</b> Mehr Tokens bedeuten mehr Rechenarbeit. Das gilt für lange Antworten, Denk-Modelle und Agenten.</p></div>
+    </div>
+    <div class="bildflaeche" style="width:100%;height:600px;border-radius:16px;-webkit-mask-image:radial-gradient(ellipse at center,#000 55%,transparent 80%);mask-image:radial-gradient(ellipse at center,#000 55%,transparent 80%)"><img src="bilder/09-denken.webp" alt=""></div>
+  </div>
+  <div class="quelle">Erstes breit verfügbares Denk-Modell: OpenAI o1 (September 2024). Heute bieten alle großen Anbieter solche Modelle an.</div>
 </section>
 
 <!-- 14 Unterricht -->
@@ -384,7 +450,7 @@ td:last-child{color:var(--blau)}
     <div class="medien"><video src="videos/werkzeugaufruf.mp4" poster="videos/werkzeugaufruf.jpg" muted playsinline preload="metadata"></video><button class="nochmal">↻ nochmal</button></div>
     <ul>
       <li>Das Modell kann nur <b>Text</b> schreiben.</li>
-      <li>Es schreibt den Aufruf in einem festen Format.</li>
+      <li>Es schreibt den Aufruf in einem festen Format (<i>Tool Call</i>).</li>
       <li>Der Harness führt das Werkzeug aus und hängt das <b>Ergebnis</b> an.</li>
       <li>Danach sagt das Modell wieder das nächste Token voraus.</li>
     </ul>
@@ -428,10 +494,10 @@ td:last-child{color:var(--blau)}
       <p>Die Lehrkraft gibt das Ziel vor, verlangt Änderungen, prüft das Ergebnis und trägt die Verantwortung.</p>
     </div>
     <ol>
-      <li>eigene Notizen, Regeln und die KMK-Empfehlung gelesen</li>
-      <li>Folien geschrieben</li>
+      <li>eigene Notizen, Regeln, die KMK-Empfehlung und eine Energie-Recherche gelesen</li>
+      <li>Folien geschrieben und überarbeitet</li>
       <li>zehn Animationen programmiert und als Video gerendert</li>
-      <li>über zwanzig Bilder bei einem zweiten KI-Dienst bestellt</li>
+      <li>rund 25 Bilder bei einem zweiten KI-Dienst bestellt</li>
       <li>Seite im Browser getestet, Fehler behoben</li>
       <li>auf GitHub veröffentlicht</li>
     </ol>
@@ -440,7 +506,7 @@ td:last-child{color:var(--blau)}
 
 <!-- 22 Abschnitt 4 -->
 <section class="folie abschnitt" data-notiz="Teil 4: Was heißt das für Grundschule, Förderschule, Sekundarstufe und Berufskolleg? Zuerst der Rahmen der KMK.">
-  <div class="text"><div class="nr">4</div><h1>KI in der Schule</h1><p>Rahmen, Landeswerkzeug, Möglichkeiten und Grenzen</p></div>
+  <div class="text"><div class="nr">4</div><h1>KI in der Schule</h1><p>Rahmen, Landeswerkzeug, Möglichkeiten, Grenzen und Energie</p></div>
   <div class="bildflaeche"><img src="bilder/05-schule.webp" alt=""></div>
 </section>
 
@@ -461,6 +527,7 @@ td:last-child{color:var(--blau)}
     </div>
     <div class="bildflaeche" style="width:100%;height:560px;border-radius:16px;-webkit-mask-image:radial-gradient(ellipse at center,#000 55%,transparent 80%);mask-image:radial-gradient(ellipse at center,#000 55%,transparent 80%)"><img src="bilder/07-kmk.webp" alt=""></div>
   </div>
+  <div class="quelle">Quelle: KMK (2024), Handlungsempfehlung für die Bildungsverwaltung zum Umgang mit Künstlicher Intelligenz in schulischen Bildungsprozessen, Beschluss vom 10.10.2024.</div>
 </section>
 
 <!-- 24 KMK für Lehrkräfte -->
@@ -473,6 +540,7 @@ td:last-child{color:var(--blau)}
     <div class="karte quer"><img class="ikon" src="bilder/s-rechte.webp" alt=""><div><h3>Bewerten bleibt menschlich</h3><p>KI kann vorkorrigieren. Die Note gibt die Lehrkraft (Art. 22 DSGVO).</p></div></div>
     <div class="karte quer"><img class="ikon" src="bilder/s-sek2.webp" alt=""><div><h3>Prozess statt Produkt</h3><p>Präsentation, Verteidigung, Reflexion und Prozessbewertung gewinnen an Gewicht.</p></div></div>
   </div>
+  <div class="quelle">KMK-Handlungsempfehlung 2024: Grundlagen verstehen (Themenbereich 3), Pauschalverbot, Bewertung und Prozess (Themenbereich 2).</div>
 </section>
 
 <!-- 25 AIS.chat -->
@@ -491,6 +559,7 @@ td:last-child{color:var(--blau)}
       <div class="karte quer"><img class="ikon" src="bilder/s-datenschutz.webp" alt=""><div><h3>Trotzdem sparsam</h3><p>Keine Namen, Noten oder Diagnosen eingeben.</p></div></div>
     </div>
   </div>
+  <div class="quelle">Quellen: Schulministerium NRW, KI-Chatbot AIS.chat; KMK-Handlungsempfehlung 2024, Themenbereich 5.</div>
 </section>
 
 <!-- 26 Möglichkeiten -->
@@ -519,13 +588,60 @@ td:last-child{color:var(--blau)}
     </div>
     <div>
       <img class="bild" src="bilder/06-grenzen.webp" alt="" style="height:440px;object-fit:cover">
-      <p class="klein" style="margin-top:16px">Rahmen: EU-KI-Verordnung Art. 4 (KI-Kompetenz), KMK-Handlungsempfehlung 2024, Handlungsleitfaden des MSB NRW.</p>
+      <p class="klein" style="margin-top:16px">Rahmen: DSGVO, Urheberrecht, EU-KI-Verordnung Art. 4 (KI-Kompetenz), KMK-Handlungsempfehlung 2024, Handlungsleitfaden des MSB NRW.</p>
     </div>
   </div>
 </section>
 
+<!-- Energie 1: großes Bild -->
+<section class="folie" data-notiz="Es gibt keine amtliche Statistik 'Strom für KI'. Gemessen oder geschätzt wird der Strom von Rechenzentren, KI ist ein Teil davon. Weltweit brauchten Rechenzentren 2025 rund 485 TWh, etwa 1,5 Prozent des Weltstroms. Die IEA erwartet bis 2030 eine Verdopplung auf rund 950 TWh. Der KI-Anteil wächst am schnellsten: 2025 etwa ein Drittel, 2030 etwa die Hälfte. Deutschland: Rechenzentren rund 21 bis 23 TWh, etwa 4 Prozent des Stroms. Wer in Deutschland KI nutzt, verbraucht den Strom oft im Ausland, zum Beispiel in den USA oder Irland. Örtlich ist die Last viel größer: In Rechenzentrums-Ballungsräumen 20 bis 30 Prozent der Stromnachfrage.">
+  <div class="hintergrund"><img src="bilder/08-energie.webp" alt=""></div>
+  <div class="dach">Energie</div>
+  <h2>Wie viel Strom braucht KI?</h2>
+  <div class="zwei" style="grid-template-columns:1fr 1.05fr;gap:60px">
+    <div>
+      <div class="saeulen">
+        <div class="saeule"><span class="wert" style="bottom:calc(416/1000*430px + 8px)">416</span><div class="teil rest" style="height:calc(316/1000*430px)"></div><div class="teil ki" style="height:calc(100/1000*430px)"></div><span class="jahr">2024</span></div>
+        <div class="saeule"><span class="wert" style="bottom:calc(485/1000*430px + 8px)">485</span><div class="teil rest" style="height:calc(335/1000*430px)"></div><div class="teil ki" style="height:calc(150/1000*430px)"></div><span class="jahr">2025</span></div>
+        <div class="saeule"><span class="wert" style="bottom:calc(945/1000*430px + 8px)">≈ 950</span><div class="teil rest" style="height:calc(480/1000*430px);opacity:.75"></div><div class="teil ki" style="height:calc(465/1000*430px);opacity:.85"></div><span class="jahr">2030*</span></div>
+      </div>
+      <div class="legende"><span><i style="background:var(--bernstein)"></i>KI-Rechenzentren</span><span><i style="background:#3a4670"></i>übrige Rechenzentren</span><span>TWh pro Jahr, weltweit</span></div>
+    </div>
+    <ul>
+      <li>Rechenzentren weltweit: rund <b>1,5 %</b> des Weltstroms, bis 2030 etwa <b>3 %</b>.</li>
+      <li>KI wächst am schnellsten: etwa <b class="bernstein">ein Drittel</b> heute, etwa <b class="bernstein">die Hälfte</b> 2030.</li>
+      <li>Deutschland: Rechenzentren rund <b>4 %</b> des Stroms, davon KI grob 15 bis 20 %.</li>
+      <li>Es gibt keine amtliche Statistik „Strom für KI“. Alle KI-Werte sind Schätzungen.</li>
+    </ul>
+  </div>
+  <div class="quelle">* Prognose. Quellen: IEA (2026), Key Questions on Energy and AI, Basisfall; KI-Anteil 2024 und 2025 grob aus IEA (2025/2026) zurückgerechnet. Deutschland: Borderstep für Bitkom (2026), BMWK-Gutachten (2025).</div>
+</section>
+
+<!-- Energie 2: pro Anfrage -->
+<section class="folie" data-notiz="Eine Textanfrage braucht im Rechenzentrum etwa 0,3 Wattstunden. Das sagen Google (0,24 Wh, gemessen, Median) und OpenAI (0,34 Wh, ohne Methode). Beide Werte sind Herstellerangaben und nicht unabhängig geprüft. Zum Vergleich: Einen Liter Wasser zu kochen braucht etwa 100 Wh, also so viel wie 300 Textanfragen. Teuer wird es bei Denk-Modellen, Bildern, Videos und Agenten. Ein 5-Sekunden-KI-Video lag in einem Test bei rund 940 Wh. Achtung: Die Skala ist logarithmisch, jede Markierung ist zehnmal so viel. Der Gesamtverbrauch steigt trotzdem, weil die Nutzung stark wächst: effizienter heißt billiger heißt mehr Nutzung (Rebound).">
+  <div class="dach">Energie</div>
+  <h2>Eine Anfrage im Vergleich</h2>
+  <div style="margin-top:6px">
+    <div class="lbalken hervor"><span>1 Textanfrage (Chatbot)</span><div class="spur"><div class="b" style="--w:11.9%"></div></div><span class="w">0,3 Wh</span></div>
+    <div class="lbalken"><span>1 Bild erzeugen</span><div class="spur"><div class="b" style="--w:19.5%;animation-delay:.1s"></div></div><span class="w">0,6 Wh</span></div>
+    <div class="lbalken"><span>1 Stunde Video-Streaming*</span><div class="spur"><div class="b" style="--w:28.8%;animation-delay:.2s"></div></div><span class="w">1–2 Wh</span></div>
+    <div class="lbalken"><span>1 Anfrage an ein Denk-Modell</span><div class="spur"><div class="b" style="--w:39.3%;animation-delay:.3s"></div></div><span class="w">2–7 Wh</span></div>
+    <div class="lbalken"><span>1 Stunde Videokonferenz*</span><div class="spur"><div class="b" style="--w:42.5%;animation-delay:.4s"></div></div><span class="w">5 Wh</span></div>
+    <div class="lbalken" style="opacity:.8"><span>1 Liter Wasser kochen</span><div class="spur"><div class="b" style="--w:75.0%;background:#5d6a94;animation-delay:.5s"></div></div><span class="w">100 Wh</span></div>
+    <div class="lbalken rot"><span>5 Sekunden KI-Video</span><div class="spur"><div class="b" style="--w:99.3%;animation-delay:.6s"></div></div><span class="w">940 Wh</span></div>
+    <div class="skala"><span></span><div><span>0,1</span><span>1</span><span>10</span><span>100</span><span>1 000 Wh</span></div><span></span></div>
+  </div>
+  <div class="raster3" style="margin-top:22px">
+    <div class="karte"><p><b>Einzeln wenig:</b> 300 Textanfragen ≈ 1 Liter Wasser kochen.</p></div>
+    <div class="karte"><p><b>Teuer:</b> Denk-Modelle, Video und Agenten brauchen ein Vielfaches.</p></div>
+    <div class="karte"><p><b>In Summe viel:</b> effizienter, billiger, mehr Nutzung (Rebound).</p></div>
+  </div>
+  <div class="quelle">Werte nur Rechenzentrum, Zehnerskala, Größenordnungen. * ohne Netz, Router und Bildschirm. Quellen: Elsworth u. a. (2025, Google); OpenAI (2025); UBA (2020); Carbon Trust (2021); MIT Technology Review (2025). Herstellerangaben nicht unabhängig geprüft.</div>
+</section>
+
 <!-- 28 Zusammenfassung -->
-<section class="folie" data-notiz="Drei Sätze zum Mitnehmen. Danach Zeit für Fragen.">
+<section class="folie" data-kapitel="Abschluss" data-notiz="Drei Sätze zum Mitnehmen. Danach Zeit für Fragen.">
+  <div class="hintergrund"><img src="bilder/01-titel.webp" alt=""></div>
   <div class="dach">Zusammenfassung</div>
   <h2>Drei Sätze zum Mitnehmen</h2>
   <ol style="margin-top:10px">
@@ -535,8 +651,26 @@ td:last-child{color:var(--blau)}
   </ol>
 </section>
 
+<!-- Glossar -->
+<section class="folie" data-kapitel="Abschluss" data-notiz="Zum Nachschlagen. Die Folie eignet sich auch als Handzettel.">
+  <div class="dach">Zum Nachschlagen</div>
+  <h2>Die wichtigsten Begriffe</h2>
+  <div class="glossar">
+    <div><b>Sprachmodell (LLM)</b><span>Programm, das berechnet, wie ein Text am wahrscheinlichsten weitergeht.</span></div>
+    <div><b>Token</b><span>Baustein aus Text, meist ein Wortteil. Das Modell rechnet nur mit Tokens.</span></div>
+    <div><b>Parameter</b><span>Stellschrauben im Modell, im Training eingestellt. Große Modelle haben Hunderte Milliarden.</span></div>
+    <div><b>Embedding</b><span>Liste von Zahlen für ein Token. Ähnliche Bedeutung liegt nah beieinander.</span></div>
+    <div><b>Kontextfenster</b><span>Menge Text, die das Modell auf einmal berücksichtigt.</span></div>
+    <div><b>Temperatur</b><span>Einstellung beim Ziehen: niedrig gleichförmig, hoch abwechslungsreich.</span></div>
+    <div><b>Halluzination</b><span>Plausibel klingender, aber erfundener Inhalt.</span></div>
+    <div><b>Denk-Modell</b><span>Modell, das vor der Antwort eine Gedankenkette schreibt.</span></div>
+    <div><b>Harness</b><span>Programm um das Modell: Anweisungen, Werkzeuge, Gedächtnis, Rechte.</span></div>
+    <div><b>Agent</b><span>Modell im Harness, das in einer Schleife Werkzeuge nutzt, bis ein Ziel erreicht ist.</span></div>
+  </div>
+</section>
+
 <!-- 29 Quellen -->
-<section class="folie" data-notiz="Quellen zum Weiterlesen. Die Videoreihe von 3Blue1Brown erklärt Transformer sehr anschaulich (englisch, mit deutschen Untertiteln).">
+<section class="folie" data-kapitel="Abschluss" data-notiz="Quellen zum Weiterlesen. Die Videoreihe von 3Blue1Brown erklärt Transformer sehr anschaulich (englisch, mit deutschen Untertiteln).">
   <div class="dach">Weiterlesen</div>
   <h2>Quellen</h2>
   <ul>
@@ -546,12 +680,14 @@ td:last-child{color:var(--blau)}
     <li>Anthropic (2024): <i>Building effective agents.</i> Bauarten von Agenten.</li>
     <li>Verordnung (EU) 2024/1689 (KI-Verordnung), Art. 4: KI-Kompetenz.</li>
     <li>MSB NRW: Handlungsleitfaden zum Umgang mit textgenerierenden KI-Systemen; AIS.chat über lernen-digital.nrw.</li>
+    <li>Energie: IEA (2026), <i>Key Questions on Energy and AI</i>; Borderstep für Bitkom (2026), <i>Rechenzentren in Deutschland</i>; Elsworth u. a. (2025), <i>Measuring the environmental impact of delivering AI at Google scale</i>.</li>
   </ul>
   <p class="klein" style="margin-top:auto">Animationen: Remotion. Bilder: ChatGPT. Zusammengestellt mit Claude Code.<!-- rechtliches --><span class="erik-recht"> · <a href="https://dm-pkg.de/impressum.html">Impressum</a> · <a href="https://dm-pkg.de/datenschutz.html">Datenschutz</a></span><style>.erik-recht{pointer-events:auto}.erik-recht a{color:inherit}</style><!-- /rechtliches --></p>
 </section>
 
 <div id="leiste"><div id="fortschritt"></div></div>
 <div id="nummer"></div>
+<div id="kapitel"></div>
 </div></div>
 
 <div id="tasten">
@@ -565,6 +701,13 @@ td:last-child{color:var(--blau)}
 <script>
 const folien=[...document.querySelectorAll('.folie')];
 const lw=document.getElementById('leinwand');
+// Kapitelmarke oben rechts aus den Abschnittsfolien
+let teil='';
+const kapitel=folien.map(f=>{
+  if(f.classList.contains('abschnitt'))teil=`Teil ${f.querySelector('.nr').textContent} · ${f.querySelector('h1').textContent}`;
+  if(f.dataset.kapitel)return f.dataset.kapitel;
+  return f.classList.contains('abschnitt')||f.classList.contains('titel')?'':teil;
+});
 let i=0;
 
 function skalieren(){
@@ -584,6 +727,7 @@ function zeige(n){
   });
   document.getElementById('fortschritt').style.width=`${(i/(folien.length-1))*100}%`;
   document.getElementById('nummer').textContent=`${i+1} / ${folien.length}`;
+  document.getElementById('kapitel').textContent=kapitel[i];
   document.getElementById('notiz').innerHTML=`<b>Notiz zu Folie ${i+1}:</b> `+(folien[i].dataset.notiz||'');
   history.replaceState(null,'',`#${i+1}`);
 }
